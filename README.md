@@ -157,6 +157,7 @@ Add the following JSON block to your IDE's MCP settings.
     }
   }
 }
+
 Optionally, you can add a similar example (i.e. without the mcp key) to a file called .vscode/mcp.json in your workspace. This will allow you to share the configuration with other host applications that accept the same format.
 
 Example JSON block without the MCP key included
@@ -173,6 +174,7 @@ For a complete overview of all installation options, see our Installation Guides
 Note: Any host application that supports local MCP servers should be able to access the local GitHub MCP server. However, the specific configuration process, syntax and stability of the integration will vary by host application. While many may follow a similar format to the examples above, this is not guaranteed. Please refer to your host application's documentation for the correct MCP configuration syntax and setup process.
 
 Build from source
+
 If you don't have Docker, you can use go build to build the binary in the
 cmd/github-mcp-server directory, and use the github-mcp-server stdio command with the GITHUB_PERSONAL_ACCESS_TOKEN environment variable set to your token. To specify the output location of the build, use the -o flag. You should configure your server to use the built executable as its command. For example:
 
@@ -189,7 +191,9 @@ cmd/github-mcp-server directory, and use the github-mcp-server stdio command wit
     }
   }
 }
+
 Tool Configuration
+
 The GitHub MCP Server supports enabling or disabling specific groups of functionalities via the --toolsets flag. This allows you to control which GitHub API capabilities are available to your AI tools. Enabling only the toolsets that you need can help the LLM with tool choice and reduce the context size.
 
 Toolsets are not limited to Tools. Relevant MCP Resources and Prompts are also included where applicable.
@@ -199,33 +203,41 @@ When no toolsets are specified, default toolsets are used.
 Looking for examples? See the Server Configuration Guide for common recipes like minimal setups, read-only mode, and combining tools with toolsets.
 
 Specifying Toolsets
+
 To specify toolsets you want available to the LLM, you can pass an allow-list in two ways:
 
 Using Command Line Argument:
 
 github-mcp-server --toolsets repos,issues,pull_requests,actions,code_security
+
 Using Environment Variable:
 
 GITHUB_TOOLSETS="repos,issues,pull_requests,actions,code_security" ./github-mcp-server
+
 The environment variable GITHUB_TOOLSETS takes precedence over the command line argument if both are provided.
 
 Specifying Individual Tools
+
 You can also configure specific tools using the --tools flag. Tools can be used independently or combined with toolsets and dynamic toolsets discovery for fine-grained control.
 
 Using Command Line Argument:
 
 github-mcp-server --tools get_file_contents,issue_read,create_pull_request
+
 Using Environment Variable:
 
 GITHUB_TOOLS="get_file_contents,issue_read,create_pull_request" ./github-mcp-server
+
 Combining with Toolsets (additive):
 
 github-mcp-server --toolsets repos,issues --tools get_gist
+
 This registers all tools from repos and issues toolsets, plus get_gist.
 
 Combining with Dynamic Toolsets (additive):
 
 github-mcp-server --tools get_file_contents --dynamic-toolsets
+
 This registers get_file_contents plus the dynamic toolset tools (enable_toolset, list_available_toolsets, get_toolset_tools).
 
 Important Notes:
@@ -234,30 +246,39 @@ Tools, toolsets, and dynamic toolsets can all be used together
 Read-only mode takes priority: write tools are skipped if --read-only is set, even if explicitly requested via --tools
 Tool names must match exactly (e.g., get_file_contents, not getFileContents). Invalid tool names will cause the server to fail at startup with an error message
 When tools are renamed, old names are preserved as aliases for backward compatibility. See Deprecated Tool Aliases for details.
+
 Using Toolsets With Docker
+
 When using Docker, you can pass the toolsets as environment variables:
 
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_TOOLSETS="repos,issues,pull_requests,actions,code_security" \
   ghcr.io/github/github-mcp-server
+  
 Using Tools With Docker
+
 When using Docker, you can pass specific tools as environment variables. You can also combine tools with toolsets:
 
 # Tools only
+
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_TOOLS="get_file_contents,issue_read,create_pull_request" \
   ghcr.io/github/github-mcp-server
 
 # Tools combined with toolsets (additive)
+
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_TOOLSETS="repos,issues" \
   -e GITHUB_TOOLS="get_gist" \
   ghcr.io/github/github-mcp-server
+  
 Special toolsets
+
 "all" toolset
+
 The special toolset all can be provided to enable all available toolsets regardless of any other configuration:
 
 ./github-mcp-server --toolsets all
@@ -265,6 +286,7 @@ Or using the environment variable:
 
 GITHUB_TOOLSETS="all" ./github-mcp-server
 "default" toolset
+
 The default toolset default is the configuration that gets passed to the server if no toolsets are specified.
 
 The default configuration is:
@@ -274,13 +296,17 @@ repos
 issues
 pull_requests
 users
+
 To keep the default configuration and add additional toolsets:
 
 GITHUB_TOOLSETS="default,stargazers" ./github-mcp-server
+
 Available Toolsets
+
 The following sets of tools are available:
 
 Toolset	Description
+
 person	context	Strongly recommended: Tools that provide context about the current user and GitHub context you are operating in
 workflow	actions	GitHub Actions workflows and CI/CD operations
 codescan	code_security	Code security related tools, such as GitHub Code Scanning
@@ -328,40 +354,54 @@ Copilot
 Copilot Spaces
 GitHub Support Docs Search
 Dynamic Tool Discovery
+
 Note: This feature is currently in beta and is not available in the Remote GitHub MCP Server. Please test it out and let us know if you encounter any issues.
 
 Instead of starting with all tools enabled, you can turn on dynamic toolset discovery. Dynamic toolsets allow the MCP host to list and enable toolsets in response to a user prompt. This should help to avoid situations where the model gets confused by the sheer number of tools available.
 
 Using Dynamic Tool Discovery
+
 When using the binary, you can pass the --dynamic-toolsets flag.
 
 ./github-mcp-server --dynamic-toolsets
+
 When using Docker, you can pass the toolsets as environment variables:
 
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_DYNAMIC_TOOLSETS=1 \
   ghcr.io/github/github-mcp-server
+
+
 Read-Only Mode
+
 To run the server in read-only mode, you can use the --read-only flag. This will only offer read-only tools, preventing any modifications to repositories, issues, pull requests, etc.
 
 ./github-mcp-server --read-only
+
 When using Docker, you can pass the read-only mode as an environment variable:
 
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_READ_ONLY=1 \
   ghcr.io/github/github-mcp-server
+  
 Lockdown Mode
+
 Lockdown mode limits the content that the server will surface from public repositories. When enabled, the server checks whether the author of each item has push access to the repository. Private repositories are unaffected, and collaborators keep full access to their own content.
 
 ./github-mcp-server --lockdown-mode
+
+
 When running with Docker, set the corresponding environment variable:
 
 docker run -i --rm \
   -e GITHUB_PERSONAL_ACCESS_TOKEN=<your-token> \
   -e GITHUB_LOCKDOWN_MODE=1 \
+  
   ghcr.io/github/github-mcp-server
+
+  
 The behavior of lockdown mode depends on the tool invoked.
 
 Following tools will return an error when the author lacks the push access:
@@ -376,6 +416,7 @@ pull_request_read:get_comments
 pull_request_read:get_review_comments
 pull_request_read:get_reviews
 i18n / Overriding Descriptions
+
 The descriptions of the tools can be overridden by creating a
 github-mcp-server-config.json file in the same directory as the binary.
 
@@ -386,6 +427,7 @@ descriptions as values. For example:
   "TOOL_ADD_ISSUE_COMMENT_DESCRIPTION": "an alternative description",
   "TOOL_CREATE_BRANCH_DESCRIPTION": "Create a new branch in a GitHub repository"
 }
+
 You can create an export of the current translations by running the binary with
 the --export-translations flag.
 
@@ -395,6 +437,7 @@ exported.
 
 ./github-mcp-server --export-translations
 cat github-mcp-server-config.json
+
 You can also use ENV vars to override the descriptions. The environment
 variable names are the same as the keys in the JSON file, prefixed with
 GITHUB_MCP_ and all uppercase.
@@ -403,5 +446,7 @@ For example, to override the TOOL_ADD_ISSUE_COMMENT_DESCRIPTION tool, you can
 set the following environment variable:
 
 export GITHUB_MCP_TOOL_ADD_ISSUE_COMMENT_DESCRIPTION="an alternative description"
+
 Library Usage
+
 The exported Go API of this module should currently be considered unstable, and subject to breaking changes. In the future, we may offer stability; please file an issue if there is a use case where this would be valuable.
