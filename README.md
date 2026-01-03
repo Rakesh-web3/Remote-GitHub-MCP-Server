@@ -6,7 +6,7 @@ Repository Management: Browse and query code, search files, analyze commits, and
 Issue & PR Automation: Create, update, and manage issues and pull requests. Let AI help triage bugs, review code changes, and maintain project boards.
 CI/CD & Workflow Intelligence: Monitor GitHub Actions workflow runs, analyze build failures, manage releases, and get insights into your development pipeline.
 Code Analysis: Examine security findings, review Dependabot alerts, understand code patterns, and get comprehensive insights into your codebase.
-Team Collaboration: Access discussions, manage notifications, analyze team activity, and streamline processes for your team.
+Team Collaboration: Access discussions, manage notifications, analyze team activity, and streamline proceses for your team.
 Built for developers who want to connect their AI tools to GitHub context and capabilities, from simple natural language queries to complex multi-step agent workflows.
 
 Remote GitHub MCP Server
